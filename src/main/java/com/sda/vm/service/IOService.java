@@ -54,12 +54,12 @@ public class IOService {
         Scanner scanner = new Scanner(System.in);
         boolean exitProductMenu = false;
         do {
-            displayMessage("Choose your destiny / product ! :) ");
+            displayMessage("Choose your destiny (product code) ! :) ");
             productCode = scanner.nextInt();
             for (Product product : productStock.keySet()) {
                 if (product.getCod().equals(productCode)) {
                     exitProductMenu = true;
-                    displayMessage("You have selected this product: " + product.getName() + " " + product.getSize() + ". \n");
+                    displayMessage("You have selected: " + product.getName() + " " + product.getSize() + ". \n");
                 }
             }
         } while (!exitProductMenu);
