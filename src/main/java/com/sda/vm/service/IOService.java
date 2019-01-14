@@ -54,7 +54,7 @@ public class IOService {
         Scanner scanner = new Scanner(System.in);
         boolean exitProductMenu = false;
         do {
-            displayMessage("Choose your destiny (product code) ! :) ");
+            displayMessage("Choose your destiny (product code): ");
             productCode = scanner.nextInt();
             for (Product product : productStock.keySet()) {
                 if (product.getCod().equals(productCode)) {
@@ -64,6 +64,14 @@ public class IOService {
             }
         } while (!exitProductMenu);
         return productCode; // codul produsului selectat de client
+    }
+
+    public String readUserOptionToContinue(Integer rest, CurrencyType currencyType){
+        // citeste de la tastatura
+        Scanner scanner = new Scanner(System.in);
+        displayMessage("You have " + rest + " " + currencyType.toString() + "." +
+                " Do you want to select another product ? (Yes / No)");
+        return scanner.next();
     }
 
 }
