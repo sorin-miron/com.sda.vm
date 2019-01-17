@@ -34,6 +34,14 @@ public class VandingMachine {
         productStock.put(p4, 10);
         productStock.put(p5, 10);
 
+
+/*      // AICI m-am oprit cu citirea starii din fisier :) Trebuie sa mai studiez si o fac pana la urma
+        try {
+            productStock IL INITIALIZEZ DIN machineService.loadState("src/main/java/com/sda/vm/utils/productStockJson.txt");
+        } catch (NullPointerException e){
+            System.out.println("Eroare: " + e.toString());
+        }*/
+
 //        initializare lista monede
         coinStock = new LinkedHashMap<>();
         Coin c1 = new Coin(101, 1);
@@ -68,9 +76,16 @@ public class VandingMachine {
             sum = rest; // actualizare suma de bani disponibila pentru a putea reapela deliverProduct cu restul de bani ramasi
             selectAnotherProduct = selectAnotherProduct(rest);
         } while (selectAnotherProduct); // [OPTIONAL] Select Product -> daca mai are bani se poate duce la Select product
-        this.payRest(rest); // plateste restul daca sunt suficienti bani
-//        this.saveState(); --> salvare stare stocuri si monezi in fisier, in format JSON, utilizand GSON de la google
-        this.run();
+        payRest(rest); // plateste restul daca sunt suficienti bani
+
+        // [OPTIONAL.level 2 :D ] salvare stare stocuri si monezi in fisier, in format JSON, utilizand GSON de la google
+        // stocul de produse este salvat in fisierul productStockJson.txt
+        // stocul de bani este salvat in fisierul coinsStockJson.txt
+        // valuta curenta este salvata in fisierul utils.txt
+        // daca fisierele nu exista le creaza la prima salvare. Directorul UTILS trebuie sa existe in com.sda.vm
+        machineService.saveState(productStock, coinStock, currencyType);
+
+        run();
     }
 
     private Integer insertCoins() {

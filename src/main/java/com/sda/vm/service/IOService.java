@@ -1,9 +1,14 @@
 package com.sda.vm.service;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sda.vm.model.Coin;
 import com.sda.vm.model.CurrencyType;
 import com.sda.vm.model.Product;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -73,5 +78,59 @@ public class IOService {
                 " Do you want to select another product ? (Yes / No)");
         return scanner.next();
     }
+
+    public void saveState(Map<Product, Integer> productStock, Map<Coin, Integer> coinStock, CurrencyType currencyType){
+        // utilizare gson de la google pentru SERIALIZARE-a unui obiect
+        Gson gson = new GsonBuilder()
+                .enableComplexMapKeySerialization()
+                .setPrettyPrinting()
+                .create();
+        String productStockJson = gson.toJson(productStock);
+        String coinStockJson = gson.toJson(coinStock);
+        // scriere in fisiere separate pentru stoc produse, stoc coin si stare currency
+        writeToFile("src/main/java/com/sda/vm/utils/productStockJson.txt", productStockJson);
+        writeToFile("src/main/java/com/sda/vm/utils/coinsStockJson.txt", coinStockJson);
+        writeToFile("src/main/java/com/sda/vm/utils/utils.txt", "Currency: " + currencyType.toString());
+    }
+
+    private void writeToFile(String filePath, String textToWriteInFile){
+        try (Writer writer = new BufferedWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(filePath), StandardCharsets.UTF_8))) {
+            writer.write(textToWriteInFile);
+        } catch (IOException e){
+            displayMessage("File write error");
+        }
+    }
+
+    // citeste corect din fisier si returneaza un String care contine JSON-ul meu
+    private String readFromFile(String filePath){
+        try(BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            while (line != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = br.readLine();
+            }
+            return sb.toString();
+        } catch (IOException e){
+            displayMessage("File reader error");
+        }
+        return "";
+    }
+
+/*    // imi da eroare... nu am terminat de studiat cum anume se formeaza map-ul ala din stringul citit din fisier.
+    public Map<Product, Integer> loadState(String filePath){
+        Gson gson = new GsonBuilder()
+                .enableComplexMapKeySerialization()
+                .setPrettyPrinting()
+                .create();
+        Map<Product, Integer> productStock = new LinkedHashMap<>();
+        productStock = gson.fromJson(readFromFile(filePath), Map.class);
+
+        return productStock;
+    }*/
 
 }
