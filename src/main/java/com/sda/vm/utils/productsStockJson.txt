@@ -1,0 +1,47 @@
+[
+  [
+    {
+      "cod": 101,
+      "name": "apa plata",
+      "price": 1,
+      "size": "0.50L"
+    },
+    10
+  ],
+  [
+    {
+      "cod": 102,
+      "name": "apa minerala",
+      "price": 2,
+      "size": "0.50L"
+    },
+    9
+  ],
+  [
+    {
+      "cod": 103,
+      "name": "cola",
+      "price": 3,
+      "size": "0.50L"
+    },
+    10
+  ],
+  [
+    {
+      "cod": 104,
+      "name": "cola",
+      "price": 4,
+      "size": "0.25L"
+    },
+    9
+  ],
+  [
+    {
+      "cod": 105,
+      "name": "fanta",
+      "price": 3,
+      "size": "0.50L"
+    },
+    9
+  ]
+]

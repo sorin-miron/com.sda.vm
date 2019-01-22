@@ -2,15 +2,15 @@ package com.sda.vm.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.sda.vm.model.Coin;
 import com.sda.vm.model.CurrencyType;
 import com.sda.vm.model.Product;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class IOService {
 
@@ -79,6 +79,7 @@ public class IOService {
         return scanner.next();
     }
 
+    // salveaza starea aplicatiei in fisiere .TXT
     public void saveState(Map<Product, Integer> productStock, Map<Coin, Integer> coinStock, CurrencyType currencyType){
         // utilizare gson de la google pentru SERIALIZARE-a unui obiect
         Gson gson = new GsonBuilder()
@@ -88,11 +89,12 @@ public class IOService {
         String productStockJson = gson.toJson(productStock);
         String coinStockJson = gson.toJson(coinStock);
         // scriere in fisiere separate pentru stoc produse, stoc coin si stare currency
-        writeToFile("src/main/java/com/sda/vm/utils/productStockJson.txt", productStockJson);
+        writeToFile("src/main/java/com/sda/vm/utils/productsStockJson.txt", productStockJson);
         writeToFile("src/main/java/com/sda/vm/utils/coinsStockJson.txt", coinStockJson);
         writeToFile("src/main/java/com/sda/vm/utils/utils.txt", "Currency: " + currencyType.toString());
     }
 
+    // scrie un String in fisierul <filePath>
     private void writeToFile(String filePath, String textToWriteInFile){
         try (Writer writer = new BufferedWriter(
                 new OutputStreamWriter(
@@ -121,16 +123,41 @@ public class IOService {
         return "";
     }
 
-/*    // imi da eroare... nu am terminat de studiat cum anume se formeaza map-ul ala din stringul citit din fisier.
-    public Map<Product, Integer> loadState(String filePath){
+    // citire stoc produse din fisier JSON
+    public Map<Product, Integer> readProductsStocksFromJSONFile(String filePath){
+//        Map<T, Integer> stockFromJSONFile2;
+//          Am incercat sa fac cu generics aceasta metoda dar inca nu i-am dat de cap.
+//          Cred ca nu recunoaste tipul clasei la TypeToken<Map<T, Integer>>().getType
+//          si genereaza aiurea JSON-ul. Asa ca am pastrat varianta functionala, chiar daca se dubleaza codul...
         Gson gson = new GsonBuilder()
                 .enableComplexMapKeySerialization()
-                .setPrettyPrinting()
                 .create();
-        Map<Product, Integer> productStock = new LinkedHashMap<>();
-        productStock = gson.fromJson(readFromFile(filePath), Map.class);
+        Type mapType = new TypeToken<Map<Product, Integer>>(){}.getType();
+        return new Gson().fromJson(readFromFile(filePath), mapType);
+    }
 
-        return productStock;
-    }*/
+    // citire stoc monede din fisier JSON
+    public Map<Coin, Integer> readCoinsStocksFromJSONFile(String filePath) {
+        Gson gson = new GsonBuilder()
+                .enableComplexMapKeySerialization()
+                .create();
+        Type mapType = new TypeToken<Map<Coin, Integer>>() {
+        }.getType();
+        return new Gson().fromJson(readFromFile(filePath), mapType);
+    }
+
+    // citire tip valuta din fisierul utils.txt
+    public CurrencyType readCurrencyTypeFromFile(String filePath){
+        CurrencyType currencyType;
+        switch (readFromFile(filePath).substring(10,13).toUpperCase()){
+            case "EUR":
+                currencyType = CurrencyType.EUR;
+                break;
+            case "RON":
+            default:
+                currencyType = CurrencyType.RON;  // valoare default daca fisierul nu este construit cum trebuie
+        }
+        return currencyType;
+    }
 
 }

@@ -5,7 +5,8 @@ import com.sda.vm.model.CurrencyType;
 import com.sda.vm.model.Product;
 import com.sda.vm.service.IOService;
 
-import java.util.HashMap;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -16,53 +17,63 @@ public class VandingMachine {
     private IOService machineService;
     private CurrencyType currencyType;
 
-/*    void start(){
-        // initializare din fisier
-    }*/
-
     public VandingMachine() {
+        machineService = new IOService();       // initializare servicii
+        start();                                // initializare stocuri masina
+    }
+
+    /*initializare stocuri masina*/
+    private void start(){
 //        initializare lista produse
         productStock = new LinkedHashMap<>();
-        Product p1 = new Product(101, "apa plata", 1, "0.50L");
-        Product p2 = new Product(102, "apa minerala", 2, "0.50L");
-        Product p3 = new Product(103, "cola", 3, "0.50L");
-        Product p4 = new Product(104, "cola", 4, "0.25L");
-        Product p5 = new Product(105, "fanta", 3, "0.50L");
-        productStock.put(p1, 10);
-        productStock.put(p2, 9);
-        productStock.put(p3, 10);
-        productStock.put(p4, 10);
-        productStock.put(p5, 10);
-
-
-/*      // AICI m-am oprit cu citirea starii din fisier :) Trebuie sa mai studiez si o fac pana la urma
-        try {
-            productStock IL INITIALIZEZ DIN machineService.loadState("src/main/java/com/sda/vm/utils/productStockJson.txt");
-        } catch (NullPointerException e){
-            System.out.println("Eroare: " + e.toString());
-        }*/
+        if(Files.isRegularFile(Paths.get("src/main/java/com/sda/vm/utils/productsStockJson.txt"))) {
+            // productStock IL INITIALIZEZ DIN fisierul "src/main/java/com/sda/vm/utils/productsStockJson.txt"
+            productStock = machineService.readProductsStocksFromJSONFile("src/main/java/com/sda/vm/utils/productsStockJson.txt");
+        } else {
+            // daca fisierul nu exista creez un stoc de produse pentru a putea testa aplicatia
+            Product p1 = new Product(101, "apa plata", 1, "0.50L");
+            Product p2 = new Product(102, "apa minerala", 2, "0.50L");
+            Product p3 = new Product(103, "cola", 3, "0.50L");
+            Product p4 = new Product(104, "cola", 4, "0.25L");
+            Product p5 = new Product(105, "fanta", 3, "0.50L");
+            productStock.put(p1, 10);
+            productStock.put(p2, 9);
+            productStock.put(p3, 10);
+            productStock.put(p4, 10);
+            productStock.put(p5, 10);
+        }
 
 //        initializare lista monede
         coinStock = new LinkedHashMap<>();
-        Coin c1 = new Coin(101, 1);
-        Coin c2 = new Coin(102, 5);
-        Coin c3 = new Coin(103, 10);
-        coinStock.put(c1, 5);
-        coinStock.put(c2, 2);
-        coinStock.put(c3, 10);
-
-//        initializare servicii
-        machineService = new IOService();
+        if(Files.isRegularFile(Paths.get("src/main/java/com/sda/vm/utils/coinsStockJson.txt"))) {
+            // coinStock IL INITIALIZEZ DIN fisierul "src/main/java/com/sda/vm/utils/coinsStockJson.txt"
+            coinStock = machineService.readCoinsStocksFromJSONFile("src/main/java/com/sda/vm/utils/coinsStockJson.txt");
+        } else {
+            // daca fisierul nu exista creez un stoc de monede pentru a putea testa aplicatia
+            Coin c1 = new Coin(101, 1);
+            Coin c2 = new Coin(102, 5);
+            Coin c3 = new Coin(103, 10);
+            coinStock.put(c1, 5);
+            coinStock.put(c2, 2);
+            coinStock.put(c3, 10);
+        }
 
 //        initializare tip valuta
-        currencyType = CurrencyType.RON;
+        if(Files.isRegularFile(Paths.get("src/main/java/com/sda/vm/utils/utils.txt"))) {
+            // CurrencyType IL INITIALIZEZ DIN fisierul "src/main/java/com/sda/vm/utils/utils.txt"
+            currencyType = machineService.readCurrencyTypeFromFile("src/main/java/com/sda/vm/utils/utils.txt");
+        } else {
+            // daca fisierul nu exista creez un stoc de monede pentru a putea testa aplicatia
+            currencyType = CurrencyType.RON;
+        }
     }
 
+/*    pornire aplicatie*/
     public void run() {
         Integer sum = 0;
         Integer option;
         Integer rest = 0;
-        Boolean selectAnotherProduct = false;
+        boolean selectAnotherProduct = false;
 
         machineService.displayProductMenu(productStock); // afiseaza stocul de produse
         machineService.displayCoinMenu(coinStock, currencyType); // tipurile de bacnote care pot fi utilizate + valuta
@@ -77,14 +88,12 @@ public class VandingMachine {
             selectAnotherProduct = selectAnotherProduct(rest);
         } while (selectAnotherProduct); // [OPTIONAL] Select Product -> daca mai are bani se poate duce la Select product
         payRest(rest); // plateste restul daca sunt suficienti bani
-
         // [OPTIONAL.level 2 :D ] salvare stare stocuri si monezi in fisier, in format JSON, utilizand GSON de la google
         // stocul de produse este salvat in fisierul productStockJson.txt
         // stocul de bani este salvat in fisierul coinsStockJson.txt
         // valuta curenta este salvata in fisierul utils.txt
         // daca fisierele nu exista le creaza la prima salvare. Directorul UTILS trebuie sa existe in com.sda.vm
         machineService.saveState(productStock, coinStock, currencyType);
-
         run();
     }
 
